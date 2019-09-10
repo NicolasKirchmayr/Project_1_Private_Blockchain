@@ -37,6 +37,16 @@ class Blockchain {
         if( this.height === -1){
             let block = new BlockClass.Block({data: 'Genesis Block'});
             await this._addBlock(block);
+            this.firstBlock()
+        }
+    }
+
+    async firstBlock() {
+        if( this.height === 0){
+            let firstBlock = new BlockClass.Block({data: 'FirstBlock'});
+            await this._addBlock(firstBlock);
+            console.log(this.chain[0].getBData())
+            console.log(this.chain[1].getBData())
         }
     }
 
@@ -63,10 +73,9 @@ class Blockchain {
      */
     _addBlock(block) {
         let self = this;
-        console.log(block.getBData())
         return new Promise(async (resolve, reject) => {
            let height = await self.getChainHeight()
-           let previousBlockHash = '1'
+           let previousBlockHash = ''
            if (parseInt(height) > -1) {
                 previousBlockHash = self.chain[height].hash
            } else {
@@ -76,12 +85,16 @@ class Blockchain {
            block.height = height + 1
            block.time = timestamp
            block.previousBlockHash = previousBlockHash
-           block.hash = SHA256(JSON.stringify(block)).toString()
+           const hashBasis = {
+               height: block.height,
+               body: block.body,
+               time: block.time,
+               previousBlockHash: block.previousBlockHash
+           }
+           block.hash = SHA256(JSON.stringify(hashBasis)).toString()
            self.chain.push(block)
            const newHeight = height + 1
            self.height = newHeight
-           console.log(this)
-           console.log(this.getChainHeight())
            if (this.height === newHeight) {
                resolve();
            } else {

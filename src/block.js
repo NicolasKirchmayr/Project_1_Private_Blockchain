@@ -47,10 +47,16 @@ class Block {
                 time: self.time,
                 previousBlockHash: self.previousBlockHash
             }
-            const recalculatedHash = SHA256(JSON.stringify(block))
+            const recalculatedHash = SHA256(JSON.stringify(block)).toString()
             // Comparing if the hashes changed
-            console.log(block) 
+            const hashCorrect = (recalculatedHash === currentHash) 
             // Returning the Block is not valid
+            if (recalculatedHash.length === 63) {
+                resolve(hashCorrect)
+            } else {
+                const err = new Error('Unsuccessful hash calculation')
+                reject(err)
+            }
             
             // Returning the Block is valid
 
@@ -69,13 +75,16 @@ class Block {
     getBData() {
         let self = this;
         // Getting the encoded data saved in the Block
-        const decodedData = hex2ascii(self.body)
-        // Decoding the data to retrieve the JSON representation of the object
-        const rawData = JSON.parse(decodedData)
-        // Parse the data to an object to be retrieve.
-        console.log(rawData.data)
-        // Resolve with the data if the object isn't the Genesis block
-
+        if (self.height > 0) {
+            // Getting the encoded data saved in the Block
+            const blockData = self.body
+            // Decoding the data to retrieve the JSON representation of the object
+            const decodedData = hex2ascii(blockData)
+            // Parse the data to an object to be retrieve.
+            const rawData = JSON.parse(decodedData)
+            // Resolve with the data if the object isn't the Genesis block
+            return rawData
+        } 
     }
 
 }
