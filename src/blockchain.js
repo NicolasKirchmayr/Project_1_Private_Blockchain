@@ -1,9 +1,9 @@
 /**
  *                          Blockchain Class
- *  The Blockchain class contain the basics functions to create your own private blockchain
+ *  The Blockchain class contains the basic functions to create your own private blockchain.
  *  It uses libraries like `crypto-js` to create the hashes for each block and `bitcoinjs-message`
  *  to verify a message signature. The chain is stored in the array
- *  `this.chain = [];`. Of course each time you run the application the chain will be empty because and array
+ *  `this.chain = [];`. Of course each time you run the application the chain will be empty because an array
  *  isn't a persisten storage method.
  *  
  */
@@ -17,10 +17,10 @@ class Blockchain {
     /**
      * Constructor of the class, you will need to setup your chain array and the height
      * of your chain (the length of your chain array).
-     * Also everytime you create a Blockchain class you will need to initialized the chain creating
+     * Also, everytime you create a Blockchain class you will need to initialized the chain creating
      * the Genesis Block.
      * The methods in this class will always return a Promise to allow client applications or
-     * other backends to call asynchronous functions.
+     * other backends to call it asynchronously.
      */
     constructor() {
         this.chain = [];
@@ -30,8 +30,8 @@ class Blockchain {
 
     /**
      * This method will check for the height of the chain and if there isn't a Genesis Block it will create it.
-     * You should use the `addBlock(block)` to create the Genesis Block
-     * Passing as a data `{data: 'Genesis Block'}`
+     * You should use the `addBlock(block)` function to create the Genesis Block
+     * passing as data `{data: 'Genesis Block'}`
      */
     async initializeChain() {
         if( this.height === -1){
@@ -104,10 +104,10 @@ class Blockchain {
     }
     /**
      * The requestMessageOwnershipVerification(address) method
-     * will allow you  to request a message that you will use to
-     * sign it with your Bitcoin Wallet (Electrum or Bitcoin Core)
-     * This is the first step before submit your Block.
-     * The method return a Promise that will resolve with the message to be signed
+     * will return a message that you use to
+     * sign it with your Bitcoin Wallet (Electrum or Bitcoin Core).
+     * This is the first step before submitting your Block.
+     * The method returns a Promise that will resolve with the message to be signed
      * @param {*} address 
      */
     requestMessageOwnershipVerification(address) {
@@ -201,6 +201,13 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
+            for(entry in self.chain) {
+                await entry.validate()
+                cath
+                if (!entry.validate()) {
+                    errorLog.push(entr)
+                }
+            }
             
         });
     }
