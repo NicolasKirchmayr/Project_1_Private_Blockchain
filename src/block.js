@@ -49,13 +49,13 @@ class Block {
             }
             const recalculatedHash = SHA256(JSON.stringify(block)).toString()
             // Comparing if the hashes changed
-            const hashCorrect = (recalculatedHash === currentHash) 
-            if (!hashCorrect) {
+            if (recalculatedHash === currentHash) {
                 // Returning the Block is not valid
-                resolve(hashCorrect)
+                resolve()
             } else {
                 // Returning the Block is valid
-                reject(hashCorrect)
+                const err = new Error('Block with height ' + self.height + 'is incorrect!')
+                reject(err)
             }
         });
     }
@@ -82,7 +82,7 @@ class Block {
             if (self.height > 0) {
                 resolve(rawData)
             } else {
-                reject()
+                resolve(null)
             }
         });
     }
