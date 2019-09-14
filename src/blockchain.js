@@ -52,8 +52,10 @@ class Blockchain {
                 "story": "Testing the story 4"
             }
             await this.submitStar('123', message,'sig', star)
-            console.log(this.chain[2].getBData())
-            //this.validateChain();
+            /*await this.validateChain().catch(function(rej) {
+                //here when you reject the promise
+                console.log(rej);
+              });*/
         }
     }
 
@@ -208,17 +210,21 @@ class Blockchain {
     validateChain() {
         let self = this;
         let errorLog = [];
-        console.log('hello')
         return new Promise(async (resolve, reject) => {
             for (var i = 0; i < self.chain.length; i++) {
                 let result = await self.chain[i].validate()
                 if (!result) {
-                    console.log('failure')
-                } else {
-                    console.log('allright')
+                    errorLog.push(new Error('Hash of block ' + i + ' is incorrect!'))
+                }
+                if ((i > 0) && (self.chain[i].previousBlockHash !== self.chain[i-1].hash)) {
+                    errorLog.push(new Error('Previous block hash of block ' + i + ' is incorrect!'))
                 }
             }
-            
+            if (errorLog.length > 0) {
+                reject(errorLog)
+            } else {
+                resolve()
+            }
         });
     }
 
