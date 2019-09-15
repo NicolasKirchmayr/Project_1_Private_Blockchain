@@ -37,25 +37,6 @@ class Blockchain {
         if( this.height === -1){
             let block = new BlockClass.Block({data: 'Genesis Block'});
             await this._addBlock(block);
-            this.firstBlock()
-        }
-    }
-
-    async firstBlock() {
-        if( this.height === 0){
-            let firstBlock = new BlockClass.Block({data: 'FirstBlock'});
-            await this._addBlock(firstBlock);
-            let message = await this.requestMessageOwnershipVerification('123')
-            const star = {
-                "dec": "68° 52' 56.9",
-                "ra": "16h 29m 1.0s",
-                "story": "Testing the story 4"
-            }
-            await this.submitStar('123', message,'sig', star)
-            /*await this.validateChain().catch(function(rej) {
-                //here when you reject the promise
-                console.log(rej);
-              });*/
         }
     }
 
@@ -141,11 +122,17 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             const messageTime = parseInt(message.split(':')[1])
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3))
-            if (currentTime - messageTime <= (5 * 60) /*&& bitcoinMessage.verify(message, address, signature)*/) {
-                resolve(self._addBlock(new BlockClass.Block({address: address, message: message, signature: signature, star: star })))
+            if (await bitcoinMessage.verify(message, address, signature)) {
+                if (currentTime - messageTime <= (5 * 60)) {
+                    await self._addBlock(new BlockClass.Block({owner: address, message: message, signature: signature, star: star }))
+                    let height = await self.getChainHeight()
+                    let block = self.chain[height]
+                    resolve(block)
+                } else {
+                    reject('5 minute time limit has passed, be quicker next time!')
+                }
             } else {
-                // Define Error!!
-                reject(err)
+                reject('Signature false, please try again!')
             }
         });
     }
@@ -197,7 +184,15 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            
+            for (var i = 1; i < self.chain.length; i++) {
+                const data = self.chain[i].getBData()
+                data.then(function(result) {
+                    if (result.owner === address) {
+                        stars.push({ owner: result.owner, star: result.star })
+                    }
+                })
+            }
+            resolve(stars)
         });
     }
 

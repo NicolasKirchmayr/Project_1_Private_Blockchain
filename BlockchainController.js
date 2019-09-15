@@ -5,6 +5,9 @@
  * This class expose the endpoints that the client applications will use to interact with the 
  * Blockchain dataset
  */
+
+const bitcoinMessage = require('bitcoinjs-message');
+
 class BlockchainController {
 
     //The constructor receive the instance of the express.js app and the Blockchain class
