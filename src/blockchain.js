@@ -37,6 +37,7 @@ class Blockchain {
         if( this.height === -1){
             let block = new BlockClass.Block({data: 'Genesis Block'});
             await this._addBlock(block);
+            await this.firstBlock();
         }
     }
 
@@ -83,7 +84,11 @@ class Blockchain {
            block.hash = SHA256(JSON.stringify(hashBasis)).toString()
            self.chain.push(block)
            self.height = height + 1
-           resolve()
+           if (self.chain.length - 1 === height + 1) {
+               resolve(block)
+           } else {
+               reject('Adding block to chain failed!')
+           }
         });
     }
     /**
@@ -124,10 +129,17 @@ class Blockchain {
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3))
             if (await bitcoinMessage.verify(message, address, signature)) {
                 if (currentTime - messageTime <= (5 * 60)) {
-                    await self._addBlock(new BlockClass.Block({owner: address, message: message, signature: signature, star: star }))
-                    let height = await self.getChainHeight()
-                    let block = self.chain[height]
-                    resolve(block)
+                    const block = new BlockClass.Block({
+                        owner: address, 
+                        message: message, 
+                        signature: signature, 
+                        star: star })
+                    try {
+                        await self._addBlock(block)
+                        resolve(block)
+                    } catch (error) {
+                        reject(error)
+                    }
                 } else {
                     reject('5 minute time limit has passed, be quicker next time!')
                 }
